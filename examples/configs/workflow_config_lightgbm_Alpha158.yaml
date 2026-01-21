@@ -1,0 +1,92 @@
+# Qlib 工作流配置文件
+# 使用 LightGBM 模型和 Alpha158 特征库
+#
+# 使用方法:
+#   qrun examples/configs/workflow_config_lightgbm_Alpha158.yaml
+#
+# 或者从 examples 目录运行:
+#   cd examples
+#   qrun configs/workflow_config_lightgbm_Alpha158.yaml
+
+# Qlib 初始化配置
+qlib_init:
+    provider_uri: "~/.qlib/qlib_data/cn_data"  # 数据路径
+    region: cn  # 市场区域: cn (A股) 或 us (美股)
+
+# 市场配置（使用锚点便于复用）
+market: &market csi300  # 股票池：csi300, csi500, all 等
+benchmark: &benchmark SH000300  # 基准指数：沪深300
+
+# 数据处理器配置
+data_handler_config: &data_handler_config
+    start_time: 2008-01-01  # 数据开始时间
+    end_time: 2020-08-01    # 数据结束时间
+    fit_start_time: 2008-01-01  # 拟合开始时间
+    fit_end_time: 2014-12-31    # 拟合结束时间
+    instruments: *market  # 使用上面定义的 market
+
+# 组合分析配置（回测配置）
+port_analysis_config: &port_analysis_config
+    strategy:
+        class: TopkDropoutStrategy
+        module_path: qlib.contrib.strategy.strategy
+        kwargs:
+            topk: 50        # 持仓股票数量
+            n_drop: 5       # 每次调仓最少更换股票数
+            signal: <PRED>  # 预测信号（占位符，运行时会被替换）
+    backtest:
+        start_time: 2017-01-01  # 回测开始时间
+        end_time: 2020-08-01    # 回测结束时间
+        account: 100000000      # 初始资金（1亿）
+        benchmark: *benchmark    # 基准指数
+        exchange_kwargs:
+            limit_threshold: 0.095  # 涨跌停限制（9.5%）
+            deal_price: close       # 成交价格（收盘价）
+            open_cost: 0.0005      # 买入佣金（0.05%）
+            close_cost: 0.0015     # 卖出佣金（0.15%）
+            min_cost: 5            # 最小佣金（5元）
+
+# 任务配置（模型和数据集）
+task:
+    # 模型配置
+    model:
+        class: LGBModel
+        module_path: qlib.contrib.model.gbdt
+        kwargs:
+            loss: mse                    # 损失函数：均方误差
+            colsample_bytree: 0.8879     # 特征采样比例
+            learning_rate: 0.0421        # 学习率
+            subsample: 0.8789           # 样本采样比例
+            lambda_l1: 205.6999         # L1 正则化
+            lambda_l2: 580.9768         # L2 正则化
+            max_depth: 8                # 树的最大深度
+            num_leaves: 210             # 叶子节点数
+            num_threads: 20             # 线程数
+
+    # 数据集配置
+    dataset:
+        class: DatasetH
+        module_path: qlib.data.dataset
+        kwargs:
+            # 数据处理器：使用 Alpha158 特征库
+            handler:
+                class: Alpha158
+                module_path: qlib.contrib.data.handler
+                kwargs: *data_handler_config  # 使用上面定义的配置
+            # 数据集划分
+            segments:
+                train: [2008-01-01, 2014-12-31]  # 训练集
+                valid: [2015-01-01, 2016-12-31]  # 验证集
+                test: [2017-01-01, 2020-08-01]   # 测试集
+
+    # 记录器配置
+    record:
+        # 信号记录器：记录预测信号
+        - class: SignalRecord
+          module_path: qlib.workflow.record_temp
+          kwargs: {}
+        # 组合分析记录器：记录回测结果
+        - class: PortAnaRecord
+          module_path: qlib.workflow.record_temp
+          kwargs:
+              config: *port_analysis_config  # 使用上面定义的配置
