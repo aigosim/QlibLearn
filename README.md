@@ -51,9 +51,17 @@ QlibLearn/
 conda create -n qlib_env python=3.8
 conda activate qlib_env
 
-# 安装依赖包
+# 先安装系统依赖和 pytables（避免编译问题）
+conda install -c conda-forge hdf5 lzo blosc pytables -y
+
+# 安装其他 Python 依赖包（tables 会被自动识别为已通过 conda 安装）
 pip install -r requirements.txt
 ```
+
+> 💡 **为什么先通过 conda 安装？**
+> - 预编译的 pytables 安装更快，避免 Cython 编译错误
+> - 可以避免架构不匹配和库链接问题
+> - pip 会自动识别已安装的 pytables，不会重复安装
 
 > 📖 **详细说明**：查看 [01-安装与环境配置.md](docs/01-安装与环境配置.md#二创建虚拟环境强烈推荐) 和 [01-安装与环境配置.md](docs/01-安装与环境配置.md#三安装前置依赖)
 
