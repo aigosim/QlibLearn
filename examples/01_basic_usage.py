@@ -41,6 +41,13 @@ def main():
     print("=" * 50)
 
     try:
+        calendar = D.calendar()
+        print(f"✅ 交易日历获取成功")
+        print(f"   最新一个交易日: {calendar[-1]}\n")
+    except Exception as e:
+        print(f"❌ 获取交易日历失败: {e}\n")
+
+    try:
         calendar = D.calendar(start_time='2020-01-01', end_time='2020-12-31')
         print(f"✅ 交易日历获取成功")
         print(f"   2020年交易日数量: {len(calendar)}")
@@ -56,9 +63,16 @@ def main():
 
     try:
         instruments = D.instruments(market='csi300')
+        # 使用 list_instruments 获取股票列表（更高效，带日期筛选）
+        stocks_dict = D.list_instruments(
+            instruments=instruments,
+            start_time='2020-09-20',
+            end_time='2020-09-25'
+        )
+        stocks = list(stocks_dict.keys())
         print(f"✅ 股票池获取成功")
-        print(f"   CSI300 股票数量: {len(instruments)}")
-        print(f"   前5只股票: {list(instruments)[:5]}\n")
+        print(f"   CSI300 股票数量（2020-09-20 至 2020-09-25）: {len(stocks)}")
+        print(f"   前5只股票: {stocks[:5]}\n")
     except Exception as e:
         print(f"❌ 获取股票池失败: {e}\n")
 
@@ -68,9 +82,17 @@ def main():
     print("=" * 50)
 
     try:
-        # 获取前3只股票的数据
+        # 获取股票池配置
         instruments = D.instruments(market='csi300')
-        sample_stocks = list(instruments)[:3]
+
+        # 使用 list_instruments 获取股票列表（更高效，带日期筛选）
+        stocks_dict = D.list_instruments(
+            instruments=instruments,
+            start_time='2020-01-01',
+            end_time='2020-01-10'
+        )
+        all_stocks = list(stocks_dict.keys())
+        sample_stocks = all_stocks[:3]  # 取前3只股票
 
         # 查询收盘价和成交量
         data = D.features(

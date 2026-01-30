@@ -30,28 +30,56 @@ def load_cn_data():
         # 获取不同的股票池
         print("1. CSI300 股票池:")
         instruments_300 = D.instruments(market='csi300')
-        print(f"   股票数量: {len(instruments_300)}")
-        print(f"   前5只股票: {list(instruments_300)[:5]}\n")
+        # 使用 list_instruments 获取股票列表（更高效）
+        stocks_300_dict = D.list_instruments(instruments=instruments_300)
+        stocks_300 = list(stocks_300_dict.keys())
+        print(f"   股票数量（全部）: {len(stocks_300)}")
+        print(f"   前5只股票: {stocks_300[:5]}\n")
+
+        # 使用日期筛选获取特定时间段的股票
+        print("   1.1. CSI300 股票池（带日期筛选）:")
+        stocks_300_filtered_dict = D.list_instruments(
+            instruments=instruments_300,
+            start_time='2020-09-20',
+            end_time='2020-09-25'
+        )
+        stocks_300_filtered = list(stocks_300_filtered_dict.keys())
+        print(f"   股票数量（2020-09-20 至 2020-09-25）: {len(stocks_300_filtered)}")
+        print(f"   前5只股票: {stocks_300_filtered[:5]}\n")
 
         print("2. CSI500 股票池:")
         try:
             instruments_500 = D.instruments(market='csi500')
-            print(f"   股票数量: {len(instruments_500)}")
-            print(f"   前5只股票: {list(instruments_500)[:5]}\n")
+            # 使用 list_instruments 获取股票列表（更高效，带日期筛选）
+            stocks_500_dict = D.list_instruments(
+                instruments=instruments_500,
+                start_time='2020-01-01',
+                end_time='2020-01-10'
+            )
+            stocks_500 = list(stocks_500_dict.keys())
+            print(f"   股票数量（2020-01-01 至 2020-01-10）: {len(stocks_500)}")
+            print(f"   前5只股票: {stocks_500[:5]}\n")
         except Exception as e:
             print(f"   ⚠️ CSI500 数据可能不存在: {e}\n")
 
         print("3. 全市场股票池:")
         try:
             instruments_all = D.instruments(market='all')
-            print(f"   股票数量: {len(instruments_all)}")
-            print(f"   前5只股票: {list(instruments_all)[:5]}\n")
+            # 使用 list_instruments 获取股票列表（更高效，带日期筛选）
+            stocks_all_dict = D.list_instruments(
+                instruments=instruments_all,
+                start_time='2020-01-01',
+                end_time='2020-01-10'
+            )
+            stocks_all = list(stocks_all_dict.keys())
+            print(f"   股票数量（2020-01-01 至 2020-01-10）: {len(stocks_all)}")
+            print(f"   前5只股票: {stocks_all[:5]}\n")
         except Exception as e:
             print(f"   ⚠️ 全市场数据可能不存在: {e}\n")
 
         # 查询数据
         print("4. 查询 CSI300 数据:")
-        sample_stocks = list(instruments_300)[:3]
+        sample_stocks = list(stocks_300)[:3]
         data = D.features(
             instruments=sample_stocks,
             fields=['$close', '$volume'],
@@ -80,12 +108,19 @@ def load_us_data():
         # 获取股票池
         print("1. 全市场股票池:")
         instruments_all = D.instruments(market='all')
-        print(f"   股票数量: {len(instruments_all)}")
-        print(f"   前5只股票: {list(instruments_all)[:5]}\n")
+        # 使用 list_instruments 获取股票列表（更高效，带日期筛选）
+        stocks_all_dict = D.list_instruments(
+            instruments=instruments_all,
+            start_time='2020-01-01',
+            end_time='2020-01-10'
+        )
+        stocks_all = list(stocks_all_dict.keys())
+        print(f"   股票数量（2020-01-01 至 2020-01-10）: {len(stocks_all)}")
+        print(f"   前5只股票: {stocks_all[:5]}\n")
 
         # 查询数据
         print("2. 查询美股数据:")
-        sample_stocks = list(instruments_all)[:3]
+        sample_stocks = list(stocks_all)[:3]
         data = D.features(
             instruments=sample_stocks,
             fields=['$close', '$volume'],

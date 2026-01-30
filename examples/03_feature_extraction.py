@@ -111,7 +111,14 @@ def main():
         from qlib.data import D
 
         instruments = D.instruments(market='csi300')
-        sample_stocks = list(instruments)[:5]
+        # 使用 list_instruments 获取股票列表（更高效，带日期筛选）
+        stocks_dict = D.list_instruments(
+            instruments=instruments,
+            start_time='2020-01-01',
+            end_time='2020-01-31'
+        )
+        all_stocks = list(stocks_dict.keys())
+        sample_stocks = all_stocks[:5]
 
         # 构建自定义特征
         fields = [

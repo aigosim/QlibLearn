@@ -91,7 +91,14 @@ def main():
     # 获取股票池
     try:
         instruments = D.instruments(market=args.market)
-        print(f"✅ 股票池获取成功: {args.market}，共 {len(instruments)} 只股票\n")
+        # 使用 list_instruments 获取股票列表（更高效）
+        stocks_dict = D.list_instruments(
+            instruments=instruments,
+            start_time=args.start_date,
+            end_time=args.end_date
+        )
+        stocks = list(stocks_dict.keys())
+        print(f"✅ 股票池获取成功: {args.market}，共 {len(stocks)} 只股票\n")
     except Exception as e:
         print(f"❌ 获取股票池失败: {e}")
         sys.exit(1)
