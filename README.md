@@ -71,10 +71,10 @@ pip install -r requirements.txt
 
 ```bash
 # 下载 A 股数据
-python -m qlib.run.get_data qlib_data --target_dir ~/.qlib/qlib_data/cn_data --region cn
+python -m qlib.cli.data qlib_data --target_dir ~/.qlib/qlib_data/cn_data --region cn
 
 # 下载美股数据
-python -m qlib.run.get_data qlib_data --target_dir ~/.qlib/qlib_data/us_data --region us
+python -m qlib.cli.data qlib_data --target_dir ~/.qlib/qlib_data/us_data --region us
 ```
 
 > 📖 **详细说明**：查看 [02-数据准备.md](docs/02-数据准备.md)
